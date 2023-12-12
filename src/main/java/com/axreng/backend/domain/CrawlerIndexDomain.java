@@ -47,7 +47,7 @@ public class CrawlerIndexDomain {
         } while (!isUnique(generatedId));
 
         generatedIds.put(generatedId, keyword);
-        searchedKeywords.put(keyword, new SearchCrawlerDetailResponse(generatedId, CREATED.getStatus()));
+        searchedKeywords.put(keyword, new SearchCrawlerDetailResponse(generatedId, CREATED.getStatusDescription()));
 
         return generatedId;
     }
@@ -77,10 +77,10 @@ public class CrawlerIndexDomain {
     }
 
     synchronized public boolean haveStatus(String keyword, CrawlStatus status) {
-        return getSearchedKeywords().get(keyword).getStatus().equals(status.getStatus());
+        return getSearchedKeywords().get(keyword).getStatus().equals(status.getStatusDescription());
     }
 
     synchronized public void updateStatus(String keyword, CrawlStatus status) {
-        getSearchedKeywords().get(keyword).setStatus(status.getStatus());
+        getSearchedKeywords().get(keyword).setStatus(status.getStatusDescription());
     }
 }

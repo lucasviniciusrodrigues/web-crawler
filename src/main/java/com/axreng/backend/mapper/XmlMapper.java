@@ -42,6 +42,7 @@ public class XmlMapper {
                         anchorList.add(hrefValue);
                     }
                 } else {
+                    hrefValue = hrefValue.replace("../", "");
                     anchorList.add(baseUrl + hrefValue);
                 }
             }

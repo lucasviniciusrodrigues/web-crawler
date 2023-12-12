@@ -4,10 +4,13 @@ public enum CrawlStatus {
 
     CREATED("created"),ACTIVE("active"), DONE("done"); // TODO Consumir a string
 
-    CrawlStatus(String status) {
+    private String statusDescription;
+
+    CrawlStatus(String statusDescription) {
+        this.statusDescription = statusDescription;
     }
 
-    public String getStatus(){
-        return this.name();
+    public String getStatusDescription(){
+        return this.statusDescription;
     }
 }
