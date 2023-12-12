@@ -56,9 +56,19 @@ public class CrawlerUseCase {
 
         for(int i = 0; i < sources.size(); i++) {
 
-            CrawlerDomain result = crawlerlWebClient.crawlerWebPage(sources.get(i), baseUrl, keyword, mappedAnchors);
-            this.updateSources(sources.get(i), nonDuplicatedSources, sources, result.getAnchors());
-            this.updateSearchedWords(keyword, result.getContainsKey());
+            try {
+
+                if(i == 14)
+                    System.out.println("");
+
+                CrawlerDomain result = crawlerlWebClient.crawlWebPage(sources.get(i), baseUrl, keyword, mappedAnchors);
+                this.updateSources(sources.get(i), nonDuplicatedSources, sources, result.getAnchors());
+                this.updateSearchedWords(keyword, result.getContainsKey());
+
+            } catch (Exception e){
+                log.warning("Error searching for " + keyword +" data from: " + sources.get(i));
+                continue;
+            }
         }
 
         crawlerIndexDomain.updateStatus(keyword, CrawlStatus.DONE);

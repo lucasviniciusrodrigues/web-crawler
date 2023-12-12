@@ -6,6 +6,7 @@ import com.axreng.backend.mapper.XmlMapper;
 import com.axreng.backend.service.CrawlerService;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -21,7 +22,7 @@ public class CrawlerWebClient {
     public CrawlerWebClient(XmlMapper xmlMapper){
         this.xmlMapper = xmlMapper;
     }
-    public CrawlerDomain crawlerWebPage(String urlString, String baseUrl, String keyword, HashMap<String, Set<String>> mappedSources) throws UnreacheableSourceException {
+    public CrawlerDomain crawlWebPage(String urlString, String baseUrl, String keyword, HashMap<String, Set<String>> mappedSources) throws UnreacheableSourceException, IOException {
         try {
 
             URL url = new URL(urlString);
@@ -51,7 +52,7 @@ public class CrawlerWebClient {
 
         } catch (Exception e) {
             log.warning("Error retrieving data from " + urlString + " : " + e.getMessage());
-            return null;
+            throw e;
         }
     }
 
