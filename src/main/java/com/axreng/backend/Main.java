@@ -3,13 +3,12 @@ package com.axreng.backend;
 import com.axreng.backend.client.CrawlerWebClient;
 import com.axreng.backend.controller.CrawlerController;
 import com.axreng.backend.domain.CrawlerIdGeneratorDomain;
-import com.axreng.backend.usecase.CrawlerUseCase;
 import com.axreng.backend.domain.CrawlerIndexDomain;
 import com.axreng.backend.mapper.XmlMapper;
 import com.axreng.backend.service.CrawlerService;
+import com.axreng.backend.usecase.CrawlerUseCase;
 
 import java.security.SecureRandom;
-import java.util.Random;
 
 public class Main {// TODO Logs
     public static void main(String[] args) {
