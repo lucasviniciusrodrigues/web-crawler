@@ -13,6 +13,10 @@ public class CrawlerDomain {
         this.containsKey = containsKey;
     }
 
+    public CrawlerDomain() {
+
+    }
+
     public Set<String> getAnchors() {
         return anchors;
     }

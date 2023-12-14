@@ -55,6 +55,9 @@ public class CrawlerController {
 
         } catch (IllegalArgumentException e){
             return setErrorResponse(400,  response, "The key \'"+ crawlerService.getSearchKey() +"\' it's mandatory in the body and must have between 4 and 32 characters");
+
+        } catch (Exception e){
+            return setErrorResponse(500,  response, "Internal Server Error");
         }
 
     }

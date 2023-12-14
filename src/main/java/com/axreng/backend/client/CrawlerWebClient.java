@@ -6,8 +6,9 @@ import com.axreng.backend.mapper.XmlMapper;
 import com.axreng.backend.service.CrawlerService;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -22,7 +23,7 @@ public class CrawlerWebClient {
     public CrawlerWebClient(XmlMapper xmlMapper){
         this.xmlMapper = xmlMapper;
     }
-    public CrawlerDomain crawlWebPage(String urlString, String baseUrl, String keyword, HashMap<String, Set<String>> mappedSources) throws UnreacheableSourceException, IOException {
+    public CrawlerDomain crawlWebPage(String urlString, String baseUrl, String keyword, Map<String, Set<String>> mappedSources) throws Exception {
         try {
 
             URL url = new URL(urlString);
@@ -32,26 +33,36 @@ public class CrawlerWebClient {
                 StringBuilder content = new StringBuilder();
                 String line;
 
-                Set<String> aux = new HashSet<>();
+                Set<String> anchors = new HashSet<>();
                 Set<String> containsList = new HashSet<>();
 
                 while ((line = reader.readLine()) != null) {
+                    line = line.toLowerCase(Locale.ROOT);
                     content.append(line).append("\n");
 
                     if(mappedSources.get(urlString) == null) {
-                        aux.addAll(xmlMapper.mapAnchorsWithSameBaseUrl(line, baseUrl));
+                        anchors.addAll(xmlMapper.mapAnchorsWithSameBaseUrl(line, baseUrl));
                     }
 
-                    if(!containsList.contains(urlString) && line.contains(keyword)){
+                    if(!containsList.contains(urlString) && line.contains(keyword)) {
                         containsList.add(urlString);
                     }
                 }
 
-                return new CrawlerDomain(aux, containsList);
+                return new CrawlerDomain(anchors, containsList);
             }
 
-        } catch (Exception e) {
-            log.warning("Error retrieving data from " + urlString + " : " + e.getMessage());
+        }
+        catch (FileNotFoundException e){
+            log.warning("Not found source: " + urlString);
+            return new CrawlerDomain();
+        }
+        catch (ConnectException e){
+            log.warning("Source to retry: " + urlString);
+            throw new UnreacheableSourceException(urlString);
+        }
+        catch (Exception e) {
+            log.warning("Error crawling for " + keyword + " at " + urlString + " : " + e.getMessage());
             throw e;
         }
     }

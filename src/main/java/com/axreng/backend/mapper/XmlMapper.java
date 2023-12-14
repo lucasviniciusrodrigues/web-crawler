@@ -37,6 +37,9 @@ public class XmlMapper {
 
             if (startQuote != -1 && endQuote != -1) {
                 String hrefValue = anchorTag.substring(startQuote + 1, endQuote);
+                if(hrefValue.startsWith("mailto:") || hrefValue.startsWith("ftp:"))
+                    return;
+
                 if ((hrefValue.startsWith("http://") || hrefValue.startsWith("https://"))) {
                     if (hrefValue.startsWith(baseUrl)) {
                         anchorList.add(hrefValue);

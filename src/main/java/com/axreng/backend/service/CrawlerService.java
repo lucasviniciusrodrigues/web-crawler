@@ -1,9 +1,9 @@
 package com.axreng.backend.service;
 
 import com.axreng.backend.config.AppConfig;
-import com.axreng.backend.usecase.CrawlerUseCase;
 import com.axreng.backend.exception.NotFoundException;
 import com.axreng.backend.model.SearchCrawlerResponse;
+import com.axreng.backend.usecase.CrawlerUseCase;
 import com.google.gson.JsonObject;
 
 import java.util.logging.Logger;
@@ -39,13 +39,7 @@ public class CrawlerService {
 
         log.info("Posting new search for keyword: " + keyword);
 
-        try {
-            return new SearchCrawlerResponse(crawlerUseCase.put(keyword));
-        } catch (Exception e){
-            log.info(""); // TODO
-        }
-
-        return null;
+        return new SearchCrawlerResponse(crawlerUseCase.put(keyword));
 
     }
 
