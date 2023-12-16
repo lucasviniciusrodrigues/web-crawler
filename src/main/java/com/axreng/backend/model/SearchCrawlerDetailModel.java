@@ -1,23 +1,21 @@
 package com.axreng.backend.model;
 
+import com.axreng.backend.domain.SearchCrawlerDetailDomain;
+
 import java.util.HashSet;
 import java.util.Set;
 
-public class SearchCrawlerDetailResponse extends SearchCrawlerResponse {
+public class SearchCrawlerDetailModel extends SearchCrawlerResponse {
 
+    public SearchCrawlerDetailModel(SearchCrawlerDetailDomain domain){
+        super(domain.getId());
+        this.status = domain.getStatus();
+        this.urls = domain.getUrls();
+    }
     private String status;
     private Set<String> urls = new HashSet<>();
 
-    public SearchCrawlerDetailResponse() {}
-    public SearchCrawlerDetailResponse(String generatedId) {
-        super(generatedId);
-    }
-
-    public SearchCrawlerDetailResponse(String generatedId, String status) {
-        super(generatedId);
-        this.status = status;
-    }
-
+    public SearchCrawlerDetailModel() {}
     public Set<String> getUrls() {
         return urls;
     }

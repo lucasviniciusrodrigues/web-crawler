@@ -2,6 +2,8 @@ package com.axreng.backend.domain;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CrawlerDomain {
 
@@ -20,4 +22,5 @@ public class CrawlerDomain {
     public Set<String> getContainsKey() {
         return containsKey;
     }
+
 }

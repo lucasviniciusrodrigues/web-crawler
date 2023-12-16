@@ -1,6 +1,7 @@
 package com.axreng.backend.service;
 
 import com.axreng.backend.config.AppConfig;
+import com.axreng.backend.model.SearchCrawlerDetailModel;
 import com.axreng.backend.usecase.CrawlerUseCase;
 import com.axreng.backend.exception.NotFoundException;
 import com.axreng.backend.model.SearchCrawlerResponse;
@@ -32,7 +33,7 @@ public class CrawlerService {
         }
 
 
-        return gson.toJson(crawlerUseCase.getResult(id));
+        return gson.toJson( new SearchCrawlerDetailModel(crawlerUseCase.getResult(id)));
     }
 
     public SearchCrawlerResponse post(String keyword)  {

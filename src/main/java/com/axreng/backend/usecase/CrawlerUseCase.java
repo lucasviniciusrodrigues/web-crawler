@@ -5,12 +5,10 @@ import com.axreng.backend.constants.CrawlStatus;
 import com.axreng.backend.domain.CrawlerDomain;
 import com.axreng.backend.domain.CrawlerIndexDomain;
 import com.axreng.backend.mapper.XmlMapper;
-import com.axreng.backend.model.SearchCrawlerDetailResponse;
+import com.axreng.backend.domain.SearchCrawlerDetailDomain;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -24,8 +22,6 @@ public class CrawlerUseCase {
     private CrawlerIndexDomain crawlerIndexDomain;
     private CrawlerWebClient crawlerlWebClient;
     private static final HashMap<String, Set<String>> mappedAnchors = new HashMap();
-
-    private final ExecutorService executorService = Executors.newCachedThreadPool(); // TODO Shutdown in the end?
     private static final Logger log = Logger.getLogger(CrawlerUseCase.class.getName());
 
 
@@ -41,12 +37,13 @@ public class CrawlerUseCase {
         }
 
         keyword = keyword.toLowerCase(Locale.ROOT);
-        String id = crawlerIndexDomain.generateUniqueID(keyword);
+        SearchCrawlerDetailDomain crawlerResponse = crawlerIndexDomain.generateUniqueID(keyword);
+        String id = crawlerResponse.getId();
 
         try {
             if(crawlerIndexDomain.haveStatus(keyword, CrawlStatus.CREATED)){
                 crawlerIndexDomain.updateStatus(keyword, CrawlStatus.ACTIVE);
-                countKeywordMT(keyword);
+                countKeyword(keyword, crawlerResponse);
             }
         } catch (Exception e) { // TODO tratar como?
             log.warning(e.getMessage());
@@ -56,39 +53,17 @@ public class CrawlerUseCase {
 
     }
 
-    private void countKeyword(String keyword) throws Exception {
-        String baseUrl = getEnvironmentVariable(BASE_URL_ENVIRONMENT);
+    private void countKeyword(String keyword, SearchCrawlerDetailDomain domain) {
 
-        List<String> sources = new ArrayList<>(List.of(baseUrl));
-        Set<String> nonDuplicatedSources = new HashSet<>(List.of());
-
-        for(int i = 0; i < sources.size(); i++) {
-
-            try {
-
-                CrawlerDomain result = crawlerlWebClient.crawlWebPage(sources.get(i), baseUrl, keyword, mappedAnchors);
-//                this.updateSources(sources.get(i), nonDuplicatedSources, sources, result.getAnchors());
-                this.updateSearchedWords(keyword, result.getContainsKey());
-
-            } catch (Exception e){
-                log.warning("Error searching for " + keyword +" data from: " + sources.get(i));
-                break;
-            }
-        }
-
-        crawlerIndexDomain.updateStatus(keyword, CrawlStatus.DONE);
-    }
-
-    private void countKeywordMT(String keyword) throws Exception {
         String baseUrl = getEnvironmentVariable(BASE_URL_ENVIRONMENT);
 
         Set<String> nonDuplicatedSources = new HashSet<>(List.of(baseUrl));
 
-        runCrawler(keyword, null, baseUrl, nonDuplicatedSources);
+        runCrawler(keyword, null, baseUrl, nonDuplicatedSources, domain);
 
     }
 
-    private CrawlerDomain runCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources) {
+    private CrawlerDomain runCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, SearchCrawlerDetailDomain domain) {
 
         if (source == null || source.isBlank())
             source = baseUrl;
@@ -109,14 +84,16 @@ public class CrawlerUseCase {
                 for(String path : mappedAnchors.get(finalSource)) {
                     if(!nonDuplicatedSources.contains(path)){
                         nonDuplicatedSources.add(path);
-                        runCrawler(keyword, path, baseUrl, nonDuplicatedSources);
+                        runCrawler(keyword, path, baseUrl, nonDuplicatedSources, domain);
                     }
                 }
 
             } catch (Exception e){
                 log.warning("Error searching for " + keyword +" data from: " + finalSource);
             }
-        }, executorService);
+        }, domain.executorService);
+
+        domain.endProcess();
 
         return result.get();
     }
@@ -139,7 +116,7 @@ public class CrawlerUseCase {
         }
     }
 
-    public SearchCrawlerDetailResponse getResult(String id) {
+    public SearchCrawlerDetailDomain getResult(String id) {
         String keyword  = crawlerIndexDomain.getGeneratedIds().get(id);
         return crawlerIndexDomain.getSearchedKeywords().get(keyword);
     }
@@ -147,4 +124,5 @@ public class CrawlerUseCase {
     public boolean isQueued(String id) {
         return crawlerIndexDomain.getGeneratedIds().containsKey(id);
     }
+
 }

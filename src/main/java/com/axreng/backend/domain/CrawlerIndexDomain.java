@@ -1,7 +1,6 @@
 package com.axreng.backend.domain;
 
 import com.axreng.backend.constants.CrawlStatus;
-import com.axreng.backend.model.SearchCrawlerDetailResponse;
 
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -32,14 +31,14 @@ public class CrawlerIndexDomain {
     }
 
     private final Map<String, String> generatedIds = new HashMap<>();
-    Map<String, SearchCrawlerDetailResponse> searchedKeywords = new HashMap<>();
+    Map<String, SearchCrawlerDetailDomain> searchedKeywords = new HashMap<>();
 
-    public synchronized String generateUniqueID(String keyword) {
+    public synchronized SearchCrawlerDetailDomain generateUniqueID(String keyword) {
         String generatedId;
 
         if(searchedKeywords.containsKey(keyword)){
             log.info("Key already processed");
-            return searchedKeywords.get(keyword).getId();
+            return searchedKeywords.get(keyword);
         }
 
         do {
@@ -47,9 +46,9 @@ public class CrawlerIndexDomain {
         } while (!isUnique(generatedId));
 
         generatedIds.put(generatedId, keyword);
-        searchedKeywords.put(keyword, new SearchCrawlerDetailResponse(generatedId, CREATED.getStatusDescription()));
+        searchedKeywords.put(keyword, new SearchCrawlerDetailDomain(generatedId, CREATED.getStatusDescription()));
 
-        return generatedId;
+        return searchedKeywords.get(keyword);
     }
 
     private String generateId(SecureRandom random) {
@@ -72,7 +71,7 @@ public class CrawlerIndexDomain {
         return generatedIds;
     }
 
-    public Map<String, SearchCrawlerDetailResponse> getSearchedKeywords() {
+    public Map<String, SearchCrawlerDetailDomain> getSearchedKeywords() {
         return searchedKeywords;
     }
 
