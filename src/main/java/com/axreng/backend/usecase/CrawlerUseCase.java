@@ -37,7 +37,7 @@ public class CrawlerUseCase {
     public String put(String keyword) {
 
         if (keyword == null || keyword.isEmpty()) {
-            throw new IllegalArgumentException(KEYWORD_ERROR_MESSAGE);
+            throw new IllegalArgumentException();
         }
 
         keyword = keyword.toLowerCase(Locale.ROOT);

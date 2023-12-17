@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import java.util.logging.Logger;
 
+import static com.axreng.backend.constants.Constants.KEYWORD_ERROR_MESSAGE;
 import static com.axreng.backend.constants.Constants.SEARCH_KEY_PROPERTIES;
 import static com.axreng.backend.utils.Utils.gson;
 
@@ -38,11 +39,18 @@ public class CrawlerService {
                 new CrawlerDetailModel(crawlerUseCase.getResult(id)));
     }
 
-    public CrawlerIdDomain post(String keyword)  {
+    public CrawlerIdDomain post(String keyword) throws IllegalAccessException {
 
-        log.info("Posting new search for keyword: " + keyword);
+        try {
 
-        return new CrawlerIdDomain(crawlerUseCase.put(keyword));
+            log.info("Posting new search for keyword: " + keyword);
+
+            return new CrawlerIdDomain(crawlerUseCase.put(keyword));
+
+        }catch (IllegalArgumentException e){
+            throw new IllegalAccessException(KEYWORD_ERROR_MESSAGE + getSearchKey());
+        }
+
 
     }
 

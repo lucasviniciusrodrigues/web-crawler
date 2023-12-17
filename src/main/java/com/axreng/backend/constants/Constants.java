@@ -11,7 +11,7 @@ public class Constants {
     public static final String BASE_URL_ENVIRONMENT = "URL_BASE";
 
     // Messages
-    public static final String KEYWORD_ERROR_MESSAGE = "Keyword can't be null or empty";
+    public static final String KEYWORD_ERROR_MESSAGE = "The key it's mandatory in the body and must have between 4 and 32 characters: ";
 
 
 

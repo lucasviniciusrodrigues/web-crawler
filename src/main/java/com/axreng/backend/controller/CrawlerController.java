@@ -46,17 +46,24 @@ public class CrawlerController {
             JsonObject jsonObject = getJsonObject(request.body());
             String keyword = crawlerService.getValidKeyword(jsonObject);
 
+            String contentType = request.contentType();
+
+            if (contentType == null || !contentType.startsWith("application/json")) {
+                throw new IllegalArgumentException("Content-Type must be application/json");
+            }
+
             if(keyword == null){
-                log.warning(KEYWORD_ERROR_MESSAGE);
-                throw new IllegalArgumentException(KEYWORD_ERROR_MESSAGE);
+                throw new IllegalArgumentException(KEYWORD_ERROR_MESSAGE + crawlerService.getSearchKey());
             }
 
             return gson.toJson(crawlerService.post(keyword));
 
         } catch (IllegalArgumentException e){
-            return setErrorResponse(400,  response, "The key \'"+ crawlerService.getSearchKey() +"\' it's mandatory in the body and must have between 4 and 32 characters");
+            log.warning(e.getMessage());
+            return setErrorResponse(400,  response, e.getMessage());
 
         } catch (Exception e){
+            log.warning(e.getMessage());
             return setErrorResponse(500,  response, "Internal Server Error");
         }
 
