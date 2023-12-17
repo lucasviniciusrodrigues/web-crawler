@@ -6,6 +6,7 @@ public class Constants {
     public static final String SEARCH_KEY_PROPERTIES = "search.key";
     public static final String RETRY_MAX_ATTEMPTS_PROPERTIES = "retry.attempts";
     public static final String RETRY_DELAY_SECONDS_PROPERTIES = "retry.delay.seconds";
+    public static final String THREAD_FIXED_POOL_PROPERTIES = "thread.fixed.pool";
 
     // Environment
     public static final String BASE_URL_ENVIRONMENT = "URL_BASE";

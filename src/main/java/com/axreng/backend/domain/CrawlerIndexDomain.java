@@ -5,11 +5,12 @@ import com.axreng.backend.constants.CrawlStatus;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CrawlerIndexDomain {
     private static CrawlerIndexDomain instance;
     private final CrawlerIdGeneratorDomain idGenerator;
-    private final Map<String, CrawlerDomain> searchedKeywords = new Hashtable<>();
+    private final Map<String, CrawlerDomain> searchedKeywords = new ConcurrentHashMap<>();
 
     private CrawlerIndexDomain(CrawlerIdGeneratorDomain idGenerator) {
         this.idGenerator = idGenerator;

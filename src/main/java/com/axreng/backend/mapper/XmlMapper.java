@@ -6,8 +6,6 @@ import java.util.logging.Logger;
 
 public class XmlMapper {
 
-    private static final Logger log = Logger.getLogger(XmlMapper.class.getName());
-
     public List<String> mapAnchorsWithSameBaseUrl(String xmlLine, String baseUrl) {
         List<String> anchorList = new ArrayList<>();
 

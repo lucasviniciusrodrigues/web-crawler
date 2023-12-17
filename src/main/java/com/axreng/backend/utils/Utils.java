@@ -1,11 +1,7 @@
 package com.axreng.backend.utils;
 
 import com.axreng.backend.model.error.ErrorResponse;
-import com.axreng.backend.service.CrawlerService;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import spark.Request;
 import spark.Response;
 
 import java.util.logging.Logger;

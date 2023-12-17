@@ -3,13 +3,19 @@ package com.axreng.backend.usecase;
 import com.axreng.backend.client.CrawlerWebClient;
 import com.axreng.backend.config.AppConfig;
 import com.axreng.backend.constants.CrawlStatus;
-import com.axreng.backend.entity.CrawlerCompareEntity;
-import com.axreng.backend.domain.CrawlerIndexDomain;
-import com.axreng.backend.exception.UnreacheableSourceException;
 import com.axreng.backend.domain.CrawlerDomain;
+import com.axreng.backend.domain.CrawlerIndexDomain;
+import com.axreng.backend.entity.CrawlerCompareEntity;
+import com.axreng.backend.exception.UnreacheableSourceException;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
@@ -24,7 +30,7 @@ public class CrawlerUseCase {
     private final int RETRY_DELAY_SECONDS;
     private final String BASE_URL;
     private static final Logger log = Logger.getLogger(CrawlerUseCase.class.getName());
-    private static final Map<String, Set<String>> mappedAnchors = new HashMap<>();
+    private static final Map<String, Set<String>> mappedAnchors = new ConcurrentHashMap<>();
     private CrawlerIndexDomain crawlerIndexDomain;
     private CrawlerWebClient crawlerlWebClient;
 
@@ -55,7 +61,7 @@ public class CrawlerUseCase {
 
     private void countKeyword(String keyword, CrawlerDomain domain) {
 
-        Set<String> nonDuplicatedSources = new HashSet<>(List.of());
+        Set<String> nonDuplicatedSources = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
         runCrawler(keyword, null, BASE_URL, nonDuplicatedSources, 0, domain);
 
@@ -63,7 +69,8 @@ public class CrawlerUseCase {
 
     private void runCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int attempts, CrawlerDomain domain) {
 
-        domain.incrementRunningThreads();
+        if(attempts == 0)
+            domain.incrementRunningThreads();
 
         if (source == null)
             source = baseUrl;
@@ -74,25 +81,31 @@ public class CrawlerUseCase {
         CompletableFuture.runAsync(() -> {
 
             try {
+                System.out.println(keyword + " Crawl: " + finalSource);
                 result.set(crawlerlWebClient.crawlWebPage(finalSource, baseUrl, keyword, mappedAnchors));
 
+                System.out.println(keyword + " up1");
                 this.updateSearchedWords(keyword, result.get().getContainsKey());
+                System.out.println(keyword + " up2");
                 this.updateMappedAnchors(finalSource, result.get().getAnchors());
 
                 for (String path : mappedAnchors.get(finalSource)) {
+                    System.out.println(keyword + " out");
                     if (!nonDuplicatedSources.contains(path)) {
+                        System.out.println(keyword + " in");
                         nonDuplicatedSources.add(path);
                         runCrawler(keyword, path, baseUrl, nonDuplicatedSources, 0, domain);
                     }
                 }
             }
             catch (UnreacheableSourceException e){
-                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts, domain);
+                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts + 1, domain);
             }
             catch (Exception e){
                 log.severe(e.getMessage());
             }
             finally {
+                System.out.println(keyword + " Há");
                 domain.decrementRunningThreads();
             }
 
@@ -101,14 +114,16 @@ public class CrawlerUseCase {
     }
 
     private void retryCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int retryAttempts, CrawlerDomain domain) {
-        if (retryAttempts <= MAX_RETRY_ATTEMPTS) {
-            log.info("Retrying crawler for \"" + keyword + "\" at " + source + " (Attempt " + (retryAttempts + 1) + ")");
+        if (retryAttempts < MAX_RETRY_ATTEMPTS) {
+            log.info("Retrying crawler for \"" + keyword + "\" in " + source + " (Attempt " + retryAttempts + ")");
 
-            domain.getRetryExecutor().schedule(() -> runCrawler(keyword, source, baseUrl, nonDuplicatedSources, retryAttempts + 1, domain),
+            domain.incrementRunningThreads();
+
+            domain.getRetryExecutor().schedule(() -> runCrawler(keyword, source, baseUrl, nonDuplicatedSources, retryAttempts, domain),
                     RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
 
         } else {
-            log.severe("Max retry attempts reached for " + keyword + " at " + source);
+            log.severe("Max retry attempts reached for " + keyword + " in " + source);
         }
     }
 
