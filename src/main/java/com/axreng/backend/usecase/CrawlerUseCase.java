@@ -87,7 +87,7 @@ public class CrawlerUseCase {
                 }
             }
             catch (UnreacheableSourceException e){
-                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts + 1, domain);
+                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts, domain);
             }
             catch (Exception e){
                 log.severe(e.getMessage());
@@ -102,7 +102,7 @@ public class CrawlerUseCase {
 
     private void retryCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int retryAttempts, CrawlerDomain domain) {
         if (retryAttempts <= MAX_RETRY_ATTEMPTS) {
-            log.info("Retrying crawler for \"" + keyword + "\" at " + source + " (Attempt " + retryAttempts + ")");
+            log.info("Retrying crawler for \"" + keyword + "\" at " + source + " (Attempt " + (retryAttempts + 1) + ")");
 
             domain.getRetryExecutor().schedule(() -> runCrawler(keyword, source, baseUrl, nonDuplicatedSources, retryAttempts + 1, domain),
                     RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
