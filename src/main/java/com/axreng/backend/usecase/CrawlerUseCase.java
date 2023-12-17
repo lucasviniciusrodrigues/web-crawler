@@ -38,7 +38,7 @@ public class CrawlerUseCase {
      }
     public String put(String keyword) {
 
-        if (isValidKeyword(keyword)) {
+        if (!isValidKeyword(keyword)) {
             throw new IllegalArgumentException();
         }
 
