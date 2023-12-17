@@ -3,6 +3,7 @@ package com.axreng.backend.domain;
 import com.axreng.backend.constants.CrawlStatus;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 public class CrawlerIndexDomain {

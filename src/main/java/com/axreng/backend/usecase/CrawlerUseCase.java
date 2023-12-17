@@ -102,7 +102,7 @@ public class CrawlerUseCase {
 
     private void retryCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int retryAttempts, CrawlerDomain domain) {
         if (retryAttempts <= MAX_RETRY_ATTEMPTS) {
-            log.info("Retrying crawler for " + keyword + " at " + source + " (Attempt " + retryAttempts + ")");
+            log.info("Retrying crawler for \"" + keyword + "\" at " + source + " (Attempt " + retryAttempts + ")");
 
             domain.getRetryExecutor().schedule(() -> runCrawler(keyword, source, baseUrl, nonDuplicatedSources, retryAttempts + 1, domain),
                     RETRY_DELAY_SECONDS, TimeUnit.SECONDS);

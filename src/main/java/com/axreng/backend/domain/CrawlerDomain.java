@@ -25,7 +25,7 @@ public class CrawlerDomain extends CrawlerBaseEntity {
         this.status = status;
     }
 
-    public Set<String> getUrls() {
+    synchronized public Set<String> getUrls() {
         return urls;
     }
 

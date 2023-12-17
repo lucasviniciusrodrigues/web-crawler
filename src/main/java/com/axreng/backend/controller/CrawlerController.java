@@ -15,7 +15,7 @@ import static spark.Spark.*;
 
 public class CrawlerController {
 
-    private static final Logger log = Logger.getLogger(CrawlerService.class.getName()); // TODO Alterar o formato das logs
+    private static final Logger log = Logger.getLogger(CrawlerService.class.getName());
 
     private CrawlerService crawlerService;
 
@@ -62,7 +62,7 @@ public class CrawlerController {
 
     private String getById(Request req, Response response) {
 
-        log.info("GET - Getting search");
+        log.info("GET - Getting search results");
 
         try {
 

@@ -2,7 +2,7 @@ package com.axreng.backend.constants;
 
 public enum CrawlStatus {
 
-    CREATED("created"),ACTIVE("active"), DONE("done"); // TODO Consumir a string
+    CREATED("created"),ACTIVE("active"), DONE("done");
 
     private String statusDescription;
 

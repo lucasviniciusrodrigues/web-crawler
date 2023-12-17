@@ -10,7 +10,8 @@ import com.axreng.backend.usecase.CrawlerUseCase;
 
 import java.security.SecureRandom;
 
-public class Main {// TODO Logs
+public class Main {
+
     public static void main(String[] args) {
 
         CrawlerUseCase crawlerDomain = null;

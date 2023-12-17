@@ -8,10 +8,12 @@ import com.axreng.backend.service.CrawlerService;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
-import java.net.ConnectException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 
 public class CrawlerWebClient {
@@ -55,13 +57,9 @@ public class CrawlerWebClient {
             log.warning("Not found source: " + urlString);
             return new CrawlerCompareEntity();
         }
-        catch (ConnectException e){
+        catch (Exception e){
             log.warning("Source to retry: " + urlString);
             throw new UnreacheableSourceException(urlString);
-        }
-        catch (Exception e) {
-            log.severe("Error crawling for " + keyword + " at " + urlString + " : " + e.getMessage());
-            return new CrawlerCompareEntity();
         }
     }
 
