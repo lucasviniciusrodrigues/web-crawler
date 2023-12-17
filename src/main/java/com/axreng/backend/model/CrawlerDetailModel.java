@@ -1,14 +1,14 @@
 package com.axreng.backend.model;
 
-import com.axreng.backend.domain.CrawlerDetailDomain;
-import com.axreng.backend.domain.CrawlerIdDomain;
+import com.axreng.backend.domain.CrawlerDomain;
+import com.axreng.backend.entity.CrawlerBaseEntity;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class CrawlerDetailModel extends CrawlerIdDomain {
+public class CrawlerDetailModel extends CrawlerBaseEntity {
 
-    public CrawlerDetailModel(CrawlerDetailDomain domain){
+    public CrawlerDetailModel(CrawlerDomain domain){
         super(domain.getId());
         this.status = domain.getStatus();
         this.urls = domain.getUrls();

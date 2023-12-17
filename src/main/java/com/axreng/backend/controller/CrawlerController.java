@@ -3,6 +3,7 @@ package com.axreng.backend.controller;
 import com.axreng.backend.exception.NotFoundException;
 import com.axreng.backend.service.CrawlerService;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import spark.Request;
 import spark.Response;
 
@@ -43,18 +44,8 @@ public class CrawlerController {
         try {
             log.info("POST - Posting new request");
 
-            JsonObject jsonObject = getJsonObject(request.body());
+            JsonObject jsonObject = getJsonObject(request);
             String keyword = crawlerService.getValidKeyword(jsonObject);
-
-            String contentType = request.contentType();
-
-            if (contentType == null || !contentType.startsWith("application/json")) {
-                throw new IllegalArgumentException("Content-Type must be application/json");
-            }
-
-            if(keyword == null){
-                throw new IllegalArgumentException(KEYWORD_ERROR_MESSAGE + crawlerService.getSearchKey());
-            }
 
             return gson.toJson(crawlerService.post(keyword));
 
@@ -63,7 +54,7 @@ public class CrawlerController {
             return setErrorResponse(400,  response, e.getMessage());
 
         } catch (Exception e){
-            log.warning(e.getMessage());
+            log.severe(e.getMessage());
             return setErrorResponse(500,  response, "Internal Server Error");
         }
 
@@ -88,6 +79,22 @@ public class CrawlerController {
             return setErrorResponse(404, response, e.getMessage());
         }
 
+    }
+
+    public static JsonObject getJsonObject(Request request) {
+
+        String contentType = request.contentType();
+
+        if (contentType == null || !contentType.startsWith("application/json")) {
+            throw new IllegalArgumentException("Content-Type must be application/json");
+        }
+
+        String requestBody = request.body();
+
+        if(requestBody != null && !requestBody.isBlank())
+            return JsonParser.parseString(requestBody).getAsJsonObject();
+        else
+            return null;
     }
 
 }

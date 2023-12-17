@@ -1,9 +1,8 @@
 package com.axreng.backend.service;
 
 import com.axreng.backend.config.AppConfig;
-import com.axreng.backend.domain.CrawlerDetailDomain;
 import com.axreng.backend.exception.NotFoundException;
-import com.axreng.backend.domain.CrawlerIdDomain;
+import com.axreng.backend.entity.CrawlerBaseEntity;
 import com.axreng.backend.model.CrawlerDetailModel;
 import com.axreng.backend.usecase.CrawlerUseCase;
 import com.google.gson.JsonObject;
@@ -20,9 +19,9 @@ public class CrawlerService {
     private final String searchKey;
     private CrawlerUseCase crawlerUseCase;
 
-    public CrawlerService(CrawlerUseCase crawlerQueueService){
+    public CrawlerService(CrawlerUseCase crawlerUseCase){
         this.searchKey = AppConfig.getProperty(SEARCH_KEY_PROPERTIES);
-        this.crawlerUseCase = crawlerQueueService;
+        this.crawlerUseCase = crawlerUseCase;
     }
 
     public String get(String id) throws NotFoundException {
@@ -34,18 +33,17 @@ public class CrawlerService {
             throw new NotFoundException("ID " + id + " not found in the queue");
         }
 
-
         return gson.toJson(
                 new CrawlerDetailModel(crawlerUseCase.getResult(id)));
     }
 
-    public CrawlerIdDomain post(String keyword) throws IllegalAccessException {
+    public CrawlerBaseEntity post(String keyword) throws IllegalAccessException {
 
         try {
 
             log.info("Posting new search for keyword: " + keyword);
 
-            return new CrawlerIdDomain(crawlerUseCase.put(keyword));
+            return new CrawlerBaseEntity(crawlerUseCase.put(keyword));
 
         }catch (IllegalArgumentException e){
             throw new IllegalAccessException(KEYWORD_ERROR_MESSAGE + getSearchKey());
@@ -56,16 +54,23 @@ public class CrawlerService {
 
     public String getValidKeyword(JsonObject jsonObject) {
 
-        if(!jsonObject.has(searchKey))
-            return null;
+        try {
 
-        String value = jsonObject.get(searchKey).getAsString();
+            if(!jsonObject.has(searchKey))
+                throw new Exception();
 
-        if(value == null || value.length() < 4
-                || value.length() > 32 || value.isBlank())
-            return null;
 
-        return value;
+            String value = jsonObject.get(searchKey).getAsString();
+
+            if (!crawlerUseCase.isValidKeyword(value))
+                throw new Exception();
+
+            return value;
+
+        } catch (Exception e){
+            throw new IllegalArgumentException(KEYWORD_ERROR_MESSAGE + getSearchKey());
+        }
+
     }
 
     public String getSearchKey() {

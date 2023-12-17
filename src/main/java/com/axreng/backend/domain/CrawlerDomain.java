@@ -1,6 +1,7 @@
 package com.axreng.backend.domain;
 
 import com.axreng.backend.constants.CrawlStatus;
+import com.axreng.backend.entity.CrawlerBaseEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,28 +11,20 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
-public class CrawlerDetailDomain extends CrawlerIdDomain {
+public class CrawlerDomain extends CrawlerBaseEntity {
 
-    private static final Logger log = Logger.getLogger(CrawlerDetailDomain.class.getName());
-
-
+    private static final Logger log = Logger.getLogger(CrawlerDomain.class.getName());
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ScheduledExecutorService retryExecutor = Executors.newScheduledThreadPool(1);
     private final AtomicInteger runningThreads = new AtomicInteger(0);
+    private Set<String> urls = new HashSet<>();
+    private String status;
 
-    public CrawlerDetailDomain(String generatedId) {
-        super(generatedId);
-    }
-
-    public CrawlerDetailDomain(String generatedId, String status) {
+    public CrawlerDomain(String generatedId, String status) {
         super(generatedId);
         this.status = status;
     }
-    private String status;
-    private Set<String> urls = new HashSet<>();
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
-    private final ScheduledExecutorService retryExecutor = Executors.newScheduledThreadPool(1);
-
-    public CrawlerDetailDomain() {}
     public Set<String> getUrls() {
         return urls;
     }
@@ -61,8 +54,6 @@ public class CrawlerDetailDomain extends CrawlerIdDomain {
         }
     }
 
-
-
     public void isDone() {
 
         try {
@@ -75,7 +66,7 @@ public class CrawlerDetailDomain extends CrawlerIdDomain {
             }
 
         } catch (Exception e) {
-            log.warning("Crawl " + getId() + " Thread shutdown with error: " + e.getMessage());
+            log.severe("Crawl " + getId() + " Thread shutdown with error: " + e.getMessage());
         }
     }
 }

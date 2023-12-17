@@ -1,11 +1,12 @@
 package com.axreng.backend.usecase;
 
 import com.axreng.backend.client.CrawlerWebClient;
+import com.axreng.backend.config.AppConfig;
 import com.axreng.backend.constants.CrawlStatus;
-import com.axreng.backend.domain.CrawlerCompareDomain;
+import com.axreng.backend.entity.CrawlerCompareEntity;
 import com.axreng.backend.domain.CrawlerIndexDomain;
 import com.axreng.backend.exception.UnreacheableSourceException;
-import com.axreng.backend.domain.CrawlerDetailDomain;
+import com.axreng.backend.domain.CrawlerDomain;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -13,15 +14,15 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import static com.axreng.backend.constants.Constants.BASE_URL_ENVIRONMENT;
-import static com.axreng.backend.constants.Constants.KEYWORD_ERROR_MESSAGE;
 import static com.axreng.backend.constants.Constants.RETRY_DELAY_SECONDS_PROPERTIES;
 import static com.axreng.backend.constants.Constants.RETRY_MAX_ATTEMPTS_PROPERTIES;
 import static com.axreng.backend.utils.Utils.getEnvironmentVariable;
 
 public class CrawlerUseCase {
 
-    private final int MAX_RETRY_ATTEMPTS = 3;
-    private final int RETRY_DELAY_SECONDS = 50;
+    private final int MAX_RETRY_ATTEMPTS;
+    private final int RETRY_DELAY_SECONDS;
+    private final String BASE_URL;
     private static final Logger log = Logger.getLogger(CrawlerUseCase.class.getName());
     private static final Map<String, Set<String>> mappedAnchors = new HashMap<>();
     private CrawlerIndexDomain crawlerIndexDomain;
@@ -31,50 +32,45 @@ public class CrawlerUseCase {
     public CrawlerUseCase(CrawlerIndexDomain crawlerIdDomain, CrawlerWebClient webClient) {
         this.crawlerIndexDomain = crawlerIdDomain;
         this.crawlerlWebClient = webClient;
-//        MAX_RETRY_ATTEMPTS = Integer.parseInt(getEnvironmentVariable(RETRY_MAX_ATTEMPTS_PROPERTIES)); TODO
-//        RETRY_DELAY_SECONDS = Integer.parseInt(getEnvironmentVariable(RETRY_DELAY_SECONDS_PROPERTIES));
+        MAX_RETRY_ATTEMPTS = Integer.parseInt(AppConfig.getProperty(RETRY_MAX_ATTEMPTS_PROPERTIES));
+        RETRY_DELAY_SECONDS = Integer.parseInt(AppConfig.getProperty(RETRY_DELAY_SECONDS_PROPERTIES));
+        BASE_URL = getEnvironmentVariable(BASE_URL_ENVIRONMENT);
      }
     public String put(String keyword) {
 
-        if (keyword == null || keyword.isEmpty()) {
+        if (isValidKeyword(keyword)) {
             throw new IllegalArgumentException();
         }
 
         keyword = keyword.toLowerCase(Locale.ROOT);
-        CrawlerDetailDomain domain = crawlerIndexDomain.generateUniqueID(keyword);
+        CrawlerDomain domain = crawlerIndexDomain.generateUniqueID(keyword);
 
-        try {
-            if(crawlerIndexDomain.haveStatus(keyword, CrawlStatus.CREATED)){
-                crawlerIndexDomain.updateStatus(keyword, CrawlStatus.ACTIVE);
-                countKeyword(keyword, domain);
-            }
-        } catch (Exception e) { // TODO tratar como?
-            log.warning("Error crawling for " + keyword + ": " + e.getMessage());
+        if(crawlerIndexDomain.haveStatus(keyword, CrawlStatus.CREATED)){
+            crawlerIndexDomain.updateStatus(keyword, CrawlStatus.ACTIVE);
+            countKeyword(keyword, domain);
         }
 
          return domain.getId();
     }
 
-    private void countKeyword(String keyword, CrawlerDetailDomain domain) {
-
-        String baseUrl = getEnvironmentVariable(BASE_URL_ENVIRONMENT);
+    private void countKeyword(String keyword, CrawlerDomain domain) {
 
         Set<String> nonDuplicatedSources = new HashSet<>(List.of());
 
-        runCrawler(keyword, null, baseUrl, nonDuplicatedSources, 0, domain);
+        runCrawler(keyword, null, BASE_URL, nonDuplicatedSources, 0, domain);
 
     }
 
-    private void runCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int attempts, CrawlerDetailDomain domain) {
+    private void runCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int attempts, CrawlerDomain domain) {
 
         domain.incrementRunningThreads();
 
-        if (source == null || source.isBlank())
+        if (source == null)
             source = baseUrl;
 
         String finalSource = source;
+        AtomicReference<CrawlerCompareEntity> result = new AtomicReference<>();
 
-        AtomicReference<CrawlerCompareDomain> result = new AtomicReference<>();
         CompletableFuture.runAsync(() -> {
 
             try {
@@ -91,10 +87,10 @@ public class CrawlerUseCase {
                 }
             }
             catch (UnreacheableSourceException e){
-                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts, domain);
+                retryCrawler(keyword, finalSource, baseUrl, nonDuplicatedSources, attempts + 1, domain);
             }
-            catch (Exception e){ // TODO tratamento
-                log.warning("Error searching for " + keyword +" data from: " + finalSource);
+            catch (Exception e){
+                log.severe(e.getMessage());
             }
             finally {
                 domain.decrementRunningThreads();
@@ -104,16 +100,15 @@ public class CrawlerUseCase {
 
     }
 
-    private void retryCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int retryAttempts, CrawlerDetailDomain domain) {
+    private void retryCrawler(String keyword, String source, String baseUrl, Set<String> nonDuplicatedSources, int retryAttempts, CrawlerDomain domain) {
         if (retryAttempts <= MAX_RETRY_ATTEMPTS) {
             log.info("Retrying crawler for " + keyword + " at " + source + " (Attempt " + retryAttempts + ")");
 
             domain.getRetryExecutor().schedule(() -> runCrawler(keyword, source, baseUrl, nonDuplicatedSources, retryAttempts + 1, domain),
                     RETRY_DELAY_SECONDS, TimeUnit.SECONDS);
 
-//            domain.retryIsDone();
         } else {
-            log.warning("Max retry attempts reached for " + keyword + " at " + source);
+            log.severe("Max retry attempts reached for " + keyword + " at " + source);
         }
     }
 
@@ -131,12 +126,19 @@ public class CrawlerUseCase {
 
     }
 
-    public CrawlerDetailDomain getResult(String id) {
+    public CrawlerDomain getResult(String id) {
         String keyword  = crawlerIndexDomain.getGeneratedIds().get(id);
         return crawlerIndexDomain.getSearchedKeywords().get(keyword);
     }
 
     public boolean isQueued(String id) {
         return crawlerIndexDomain.getGeneratedIds().containsKey(id);
+    }
+
+    public boolean isValidKeyword(String value) {
+        if(value == null || value.length() < 4 || value.length() > 32 || value.isBlank())
+            return false;
+
+        return true;
     }
 }

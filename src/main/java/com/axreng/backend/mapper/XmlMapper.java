@@ -52,38 +52,5 @@ public class XmlMapper {
         }
     }
 
-
-//    public List<String> mapAnchorsWithSameBaseUrl(String xmlLine, String baseUrl) throws Exception {
-//        List<String> anchorList = new ArrayList<>();
-//
-//        try {
-//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//            DocumentBuilder builder = factory.newDocumentBuilder();
-//            Document document = builder.parse(new InputSource(new StringReader(xmlLine)));
-//
-//            NodeList anchorNodes = document.getElementsByTagName("a");
-//            for (int i = 0; i < anchorNodes.getLength(); i++) {
-//                Element anchorElement = (Element) anchorNodes.item(i);
-//
-//                String link = anchorElement.getAttribute("href");
-//
-//                if((link.startsWith("http://") || link.startsWith("https://"))){
-//
-//                    if(anchorElement.getAttribute("href").startsWith(baseUrl)){
-//                        anchorList.add(anchorElement.getAttribute("href"));
-//                    }
-//
-//                } else {
-//                    anchorList.add(baseUrl + "/" + anchorElement.getAttribute("href"));
-//                }
-//            }
-//        } catch (Exception e){
-//            log.warning("Error reading XML string from: " + baseUrl);
-//            throw new Exception("Error reading XML string from: " + baseUrl);
-//        }
-//
-//        return anchorList;
-//    }
-
 }
 

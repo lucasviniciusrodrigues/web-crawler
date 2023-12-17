@@ -1,6 +1,6 @@
 package com.axreng.backend.client;
 
-import com.axreng.backend.domain.CrawlerCompareDomain;
+import com.axreng.backend.entity.CrawlerCompareEntity;
 import com.axreng.backend.exception.UnreacheableSourceException;
 import com.axreng.backend.mapper.XmlMapper;
 import com.axreng.backend.service.CrawlerService;
@@ -23,14 +23,13 @@ public class CrawlerWebClient {
     public CrawlerWebClient(XmlMapper xmlMapper){
         this.xmlMapper = xmlMapper;
     }
-    public CrawlerCompareDomain crawlWebPage(String urlString, String baseUrl, String keyword, Map<String, Set<String>> mappedSources) throws Exception {
+    public CrawlerCompareEntity crawlWebPage(String urlString, String baseUrl, String keyword, Map<String, Set<String>> mappedSources) throws Exception {
         try {
 
             URL url = new URL(urlString);
             URLConnection urlConnection = url.openConnection();
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
-                StringBuilder content = new StringBuilder();
                 String line;
 
                 Set<String> anchors = new HashSet<>();
@@ -38,7 +37,6 @@ public class CrawlerWebClient {
 
                 while ((line = reader.readLine()) != null) {
                     line = line.toLowerCase(Locale.ROOT);
-                    content.append(line).append("\n");
 
                     if(mappedSources.get(urlString) == null) {
                         anchors.addAll(xmlMapper.mapAnchorsWithSameBaseUrl(line, baseUrl));
@@ -49,21 +47,21 @@ public class CrawlerWebClient {
                     }
                 }
 
-                return new CrawlerCompareDomain(anchors, containsList);
+                return new CrawlerCompareEntity(anchors, containsList);
             }
 
         }
         catch (FileNotFoundException e){
             log.warning("Not found source: " + urlString);
-            return new CrawlerCompareDomain();
+            return new CrawlerCompareEntity();
         }
         catch (ConnectException e){
             log.warning("Source to retry: " + urlString);
             throw new UnreacheableSourceException(urlString);
         }
         catch (Exception e) {
-            log.warning("Error crawling for " + keyword + " at " + urlString + " : " + e.getMessage());
-            throw e;
+            log.severe("Error crawling for " + keyword + " at " + urlString + " : " + e.getMessage());
+            return new CrawlerCompareEntity();
         }
     }
 

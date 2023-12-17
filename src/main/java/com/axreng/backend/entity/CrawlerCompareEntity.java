@@ -1,19 +1,19 @@
-package com.axreng.backend.domain;
+package com.axreng.backend.entity;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class CrawlerCompareDomain {
+public class CrawlerCompareEntity {
 
     private Set<String> anchors = new HashSet<>();
     private Set<String> containsKey = new HashSet<>();
 
-    public CrawlerCompareDomain(Set<String> anchors, Set<String> containsKey) {
+    public CrawlerCompareEntity(Set<String> anchors, Set<String> containsKey) {
         this.anchors = anchors;
         this.containsKey = containsKey;
     }
 
-    public CrawlerCompareDomain() {}
+    public CrawlerCompareEntity() {}
 
     public Set<String> getAnchors() {
         return anchors;

@@ -8,14 +8,12 @@ import java.util.logging.Logger;
 import static com.axreng.backend.constants.CrawlStatus.CREATED;
 
 public class CrawlerIdGeneratorDomain {
-
     private static final Logger log = Logger.getLogger(CrawlerIdGeneratorDomain.class.getName());
-    private static CrawlerIdGeneratorDomain instance;
-
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final int ID_LENGTH = 8;
-    SecureRandom random;
+    private static CrawlerIdGeneratorDomain instance;
     private final Map<String, String> generatedIds = new HashMap<>();
+    SecureRandom random;
 
     private CrawlerIdGeneratorDomain(SecureRandom secureRandom) {
         random = secureRandom;
@@ -28,11 +26,10 @@ public class CrawlerIdGeneratorDomain {
         return instance;
     }
 
-    public CrawlerDetailDomain generateUniqueID(String keyword, Map<String, CrawlerDetailDomain> index) {
+    public CrawlerDomain generateUniqueID(String keyword, Map<String, CrawlerDomain> index) {
         String generatedId;
 
         if(index.containsKey(keyword)){
-            log.info("Key already processed");
             return index.get(keyword);
         }
 
@@ -40,8 +37,10 @@ public class CrawlerIdGeneratorDomain {
             generatedId = generateId(random);
         } while (!isUnique(generatedId));
 
+        log.info("New id " + generatedId + " created for keyword: " + keyword );
+
         generatedIds.put(generatedId, keyword);
-        index.put(keyword, new CrawlerDetailDomain(generatedId, CREATED.getStatusDescription()));
+        index.put(keyword, new CrawlerDomain(generatedId, CREATED.getStatusDescription()));
 
         return index.get(keyword);
     }
@@ -58,7 +57,7 @@ public class CrawlerIdGeneratorDomain {
         return idBuilder.toString();
     }
 
-    private  boolean isUnique(String id) {
+    private boolean isUnique(String id) {
         return !generatedIds.containsKey(id);
     }
 

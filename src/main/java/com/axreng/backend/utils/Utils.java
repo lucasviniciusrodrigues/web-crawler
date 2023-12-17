@@ -5,6 +5,7 @@ import com.axreng.backend.service.CrawlerService;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import spark.Request;
 import spark.Response;
 
 import java.util.logging.Logger;
@@ -15,18 +16,11 @@ public class Utils {
 
     public static final Gson gson = new Gson();
 
-    public static JsonObject getJsonObject(String requestBody) {
-        if(requestBody != null && !requestBody.isBlank())
-            return JsonParser.parseString(requestBody).getAsJsonObject();
-        else
-            return null;
-    }
-
     public static String getEnvironmentVariable(String variableName) {
         String variable = System.getenv(variableName);
 
         if(variable == null || variable.isBlank()){
-            log.warning(variableName + "it's not in the system");
+            log.severe(variableName + "it's not in the system");
         }
 
         return variable;

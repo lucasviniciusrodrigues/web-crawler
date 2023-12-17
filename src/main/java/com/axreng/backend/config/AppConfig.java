@@ -26,7 +26,7 @@ public class AppConfig {
                 System.err.println("File " + PROPERTIES_FILE + " not found");
             }
         } catch (Exception e) {
-            log.warning("Error reading properties file: " + PROPERTIES_FILE);
+            log.severe("Error reading properties file: " + PROPERTIES_FILE);
         }
     }
 
