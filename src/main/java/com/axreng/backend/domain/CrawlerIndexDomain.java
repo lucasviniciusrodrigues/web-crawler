@@ -9,7 +9,7 @@ import java.util.Map;
 public class CrawlerIndexDomain {
     private static CrawlerIndexDomain instance;
     private final CrawlerIdGeneratorDomain idGenerator;
-    private final Map<String, CrawlerDomain> searchedKeywords = new HashMap<>();
+    private final Map<String, CrawlerDomain> searchedKeywords = new Hashtable<>();
 
     private CrawlerIndexDomain(CrawlerIdGeneratorDomain idGenerator) {
         this.idGenerator = idGenerator;

@@ -25,7 +25,7 @@ public class CrawlerDomain extends CrawlerBaseEntity {
         this.status = status;
     }
 
-    synchronized public Set<String> getUrls() {
+    public Set<String> getUrls() {
         return urls;
     }
 
@@ -60,8 +60,8 @@ public class CrawlerDomain extends CrawlerBaseEntity {
 
             if (runningThreads.get() == 0) {
                 this.status = CrawlStatus.DONE.getStatusDescription();
-                executorService.shutdown();
-                retryExecutor.shutdown();
+//                executorService.shutdown();
+//                retryExecutor.shutdown();
                 log.info("Crawl finished: " + getId());
             }
 

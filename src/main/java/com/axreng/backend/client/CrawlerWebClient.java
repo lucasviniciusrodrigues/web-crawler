@@ -38,12 +38,12 @@ public class CrawlerWebClient {
                 Set<String> containsList = new HashSet<>();
 
                 while ((line = reader.readLine()) != null) {
-                    line = line.toLowerCase(Locale.ROOT);
 
                     if(mappedSources.get(urlString) == null) {
                         anchors.addAll(xmlMapper.mapAnchorsWithSameBaseUrl(line, baseUrl));
                     }
 
+                    line = line.toLowerCase(Locale.ROOT);
                     if(!containsList.contains(urlString) && line.contains(keyword)) {
                         containsList.add(urlString);
                     }

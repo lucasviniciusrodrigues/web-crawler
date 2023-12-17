@@ -11,12 +11,11 @@ public class CrawlerDetailModel extends CrawlerBaseEntity {
     public CrawlerDetailModel(CrawlerDomain domain){
         super(domain.getId());
         this.status = domain.getStatus();
-        this.urls = domain.getUrls();
+        this.urls.addAll(domain.getUrls());
     }
     private String status;
     private Set<String> urls = new HashSet<>();
 
-    public CrawlerDetailModel() {}
     public Set<String> getUrls() {
         return urls;
     }
@@ -25,7 +24,4 @@ public class CrawlerDetailModel extends CrawlerBaseEntity {
         return status;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }
