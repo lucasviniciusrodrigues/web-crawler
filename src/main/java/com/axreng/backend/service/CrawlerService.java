@@ -1,8 +1,10 @@
 package com.axreng.backend.service;
 
 import com.axreng.backend.config.AppConfig;
+import com.axreng.backend.domain.CrawlerDetailDomain;
 import com.axreng.backend.exception.NotFoundException;
-import com.axreng.backend.model.SearchCrawlerResponse;
+import com.axreng.backend.domain.CrawlerIdDomain;
+import com.axreng.backend.model.CrawlerDetailModel;
 import com.axreng.backend.usecase.CrawlerUseCase;
 import com.google.gson.JsonObject;
 
@@ -32,14 +34,15 @@ public class CrawlerService {
         }
 
 
-        return gson.toJson(crawlerUseCase.getResult(id));
+        return gson.toJson(
+                new CrawlerDetailModel(crawlerUseCase.getResult(id)));
     }
 
-    public SearchCrawlerResponse post(String keyword)  {
+    public CrawlerIdDomain post(String keyword)  {
 
         log.info("Posting new search for keyword: " + keyword);
 
-        return new SearchCrawlerResponse(crawlerUseCase.put(keyword));
+        return new CrawlerIdDomain(crawlerUseCase.put(keyword));
 
     }
 

@@ -1,11 +1,9 @@
 package com.axreng.backend.domain;
 
 import com.axreng.backend.constants.CrawlStatus;
-import com.axreng.backend.model.SearchCrawlerDetailResponse;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 public class CrawlerIndexDomain {
@@ -13,7 +11,7 @@ public class CrawlerIndexDomain {
     private static final Logger log = Logger.getLogger(CrawlerIndexDomain.class.getName());
     private static CrawlerIndexDomain instance;
     private final CrawlerIdGeneratorDomain idGenerator;
-    private final Map<String, SearchCrawlerDetailResponse> searchedKeywords = new HashMap<>();
+    private final Map<String, CrawlerDetailDomain> searchedKeywords = new HashMap<>();
 
 
     private CrawlerIndexDomain(CrawlerIdGeneratorDomain idGenerator) {
@@ -27,7 +25,7 @@ public class CrawlerIndexDomain {
         return instance;
     }
 
-    public Map<String, SearchCrawlerDetailResponse> getSearchedKeywords() {
+    public Map<String, CrawlerDetailDomain> getSearchedKeywords() {
         return searchedKeywords;
     }
 
@@ -39,7 +37,7 @@ public class CrawlerIndexDomain {
         getSearchedKeywords().get(keyword).setStatus(status.getStatusDescription());
     }
 
-    public String generateUniqueID(String keyword) {
+    public CrawlerDetailDomain generateUniqueID(String keyword) {
         return idGenerator.generateUniqueID(keyword, getSearchedKeywords());
     }
 

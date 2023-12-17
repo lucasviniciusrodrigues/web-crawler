@@ -1,6 +1,6 @@
 package com.axreng.backend.client;
 
-import com.axreng.backend.domain.CrawlerDomain;
+import com.axreng.backend.domain.CrawlerCompareDomain;
 import com.axreng.backend.exception.UnreacheableSourceException;
 import com.axreng.backend.mapper.XmlMapper;
 import com.axreng.backend.service.CrawlerService;
@@ -23,7 +23,7 @@ public class CrawlerWebClient {
     public CrawlerWebClient(XmlMapper xmlMapper){
         this.xmlMapper = xmlMapper;
     }
-    public CrawlerDomain crawlWebPage(String urlString, String baseUrl, String keyword, Map<String, Set<String>> mappedSources) throws Exception {
+    public CrawlerCompareDomain crawlWebPage(String urlString, String baseUrl, String keyword, Map<String, Set<String>> mappedSources) throws Exception {
         try {
 
             URL url = new URL(urlString);
@@ -49,13 +49,13 @@ public class CrawlerWebClient {
                     }
                 }
 
-                return new CrawlerDomain(anchors, containsList);
+                return new CrawlerCompareDomain(anchors, containsList);
             }
 
         }
         catch (FileNotFoundException e){
             log.warning("Not found source: " + urlString);
-            return new CrawlerDomain();
+            return new CrawlerCompareDomain();
         }
         catch (ConnectException e){
             log.warning("Source to retry: " + urlString);

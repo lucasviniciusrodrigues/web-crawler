@@ -3,19 +3,17 @@ package com.axreng.backend.domain;
 import java.util.HashSet;
 import java.util.Set;
 
-public class CrawlerDomain {
+public class CrawlerCompareDomain {
 
     private Set<String> anchors = new HashSet<>();
     private Set<String> containsKey = new HashSet<>();
 
-    public CrawlerDomain(Set<String> anchors, Set<String> containsKey) {
+    public CrawlerCompareDomain(Set<String> anchors, Set<String> containsKey) {
         this.anchors = anchors;
         this.containsKey = containsKey;
     }
 
-    public CrawlerDomain() {
-
-    }
+    public CrawlerCompareDomain() {}
 
     public Set<String> getAnchors() {
         return anchors;

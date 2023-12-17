@@ -1,7 +1,5 @@
 package com.axreng.backend.domain;
 
-import com.axreng.backend.model.SearchCrawlerDetailResponse;
-
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,12 +28,12 @@ public class CrawlerIdGeneratorDomain {
         return instance;
     }
 
-    public String generateUniqueID(String keyword, Map<String, SearchCrawlerDetailResponse> index) {
+    public CrawlerDetailDomain generateUniqueID(String keyword, Map<String, CrawlerDetailDomain> index) {
         String generatedId;
 
         if(index.containsKey(keyword)){
             log.info("Key already processed");
-            return index.get(keyword).getId();
+            return index.get(keyword);
         }
 
         do {
@@ -43,9 +41,9 @@ public class CrawlerIdGeneratorDomain {
         } while (!isUnique(generatedId));
 
         generatedIds.put(generatedId, keyword);
-        index.put(keyword, new SearchCrawlerDetailResponse(generatedId, CREATED.getStatusDescription()));
+        index.put(keyword, new CrawlerDetailDomain(generatedId, CREATED.getStatusDescription()));
 
-        return generatedId;
+        return index.get(keyword);
     }
 
     private String generateId(SecureRandom random) {
