@@ -9,9 +9,8 @@ import org.mockito.MockitoAnnotations;
 import spark.Request;
 import spark.Response;
 
-import static com.axreng.backend.Mocks.getCrawlerBaseEntity;
-import static com.axreng.backend.Mocks.getCrawlerDetailModel;
-import static com.axreng.backend.Mocks.validKeyowrd;
+import static com.axreng.backend.Mocks.*;
+import static com.axreng.backend.controller.CrawlerController.CONTENT_TYPE_ERROR_MESSAGE;
 import static com.axreng.backend.utils.Utils.gson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -44,7 +43,7 @@ public class CrawlerControllerTest {
 
         String result = crawlerController.postCrawler(request, response);
 
-        assertEquals(gson.toJson(getCrawlerBaseEntity()), result);
+        assertEquals(getCrawlerBaseEntityAsString(), result);
         verify(crawlerService, times(1)).post(anyString());
     }
 
@@ -57,7 +56,7 @@ public class CrawlerControllerTest {
 
         String result = crawlerController.getById(request, response);
 
-        assertEquals(gson.toJson(getCrawlerDetailModel()), result);
+        assertEquals(getCrawlerDetailModelAsString(), result);
         verify(crawlerService, times(1)).get(anyString());
     }
 
@@ -68,7 +67,7 @@ public class CrawlerControllerTest {
 
         String result = crawlerController.getById(request, response);
 
-        assertEquals("{\"status\":404,\"message\":\"Not found\"}", result);
+        assertEquals(getErrorAsString(404, "Not found"), result);
         verify(crawlerService, times(1)).get(anyString());
     }
 
@@ -78,7 +77,7 @@ public class CrawlerControllerTest {
 
         String result = crawlerController.getById(request, response);
 
-        assertEquals("{\"status\":400,\"message\":\"" + crawlerController.badRequestIdMessage + "\"}", result);
+        assertEquals( getErrorAsString(400,  crawlerController.BAD_REQUEST_ID_MESSAGE), result);
     }
 
     @Test
@@ -86,12 +85,13 @@ public class CrawlerControllerTest {
         when(request.params("id")).thenReturn("123123123012312312301231231230123123");
 
         String result = crawlerController.getById(request, response);
-
-        assertEquals("{\"status\":400,\"message\":\"" + crawlerController.badRequestIdMessage + "\"}", result);
+        assertEquals( getErrorAsString(400, crawlerController.BAD_REQUEST_ID_MESSAGE ), result);
     }
 
     @Test
     public void shouldReturn400InvalidContentType(){
-        crawlerController.postCrawler()
+
+        String result = crawlerController.postCrawler(request, response);
+        assertEquals( getErrorAsString(400, crawlerController.CONTENT_TYPE_ERROR_MESSAGE), result);
     }
 }
