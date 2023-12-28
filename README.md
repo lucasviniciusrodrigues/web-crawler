@@ -1,4 +1,4 @@
-# axreng-test
+# axr-test
 
 Este projeto se trata de uma implementação de um crawler disponibilizado através de endpoints REST.
 
@@ -14,10 +14,10 @@ A chave do json para a palavra chave esta configurada no property, assim como as
 
 ### Execução
 
-docker build . -t axreng/backend
+docker build . -t axr/backend
 docker run
--e BASE_URL=http://hiring.axreng.com/
--p 4567:4567 --rm axreng/backend
+-e BASE_URL=http://hiring.axr.com/
+-p 4567:4567 --rm axr/backend
 
 ### Tests
 
